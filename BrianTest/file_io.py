@@ -102,6 +102,7 @@ def readFlow(name):
 
     header = f.read(4)
     if header.decode("utf-8") != 'PIEH':
+        print(name)
         raise Exception('Flow file header does not contain PIEH')
 
     width = np.fromfile(f, np.int32, 1).squeeze()
