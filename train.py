@@ -83,8 +83,6 @@ class Visualize(TrainingCallback):
         with EvalModel(model): 
             preds = predict_flow(model, im1, im2)
 
-            im1, im2 = tfms.denorm(im1[0]), tfms.denorm(im2[0])
-
         for im1, pred, target in zip(self.im1, preds, self.target):
             im1 = self.denorm_fn(im1)
             im1 = im1.numpy().transpose((1, 2, 0))
