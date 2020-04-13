@@ -6,6 +6,8 @@ import imageio
 import numpy as np
 from PIL import Image
 import sys
+import matplotlib.image as mpimg
+from pathlib import Path
 
 
 def read(file):
@@ -103,8 +105,16 @@ def readFlow(name):
     header = f.read(4)
     if header.decode("utf-8") != 'PIEH':
         print(name)
-        raise Exception('Flow file header does not contain PIEH')
-
+        print('Flow file header does not contain PIEH, deleting')
+        dir = Path(os.path.dirname(name))
+        s = os.path.basename(name)
+        s = s.replace('-flow_01.flo', '')
+        im0 = s + '-img_0.png'
+        im1 = s + '-img_1.png'
+        os.remove(name)
+        os.remove(dir/im0)
+        os.remove(dir/im1)
+        return None
     width = np.fromfile(f, np.int32, 1).squeeze()
     height = np.fromfile(f, np.int32, 1).squeeze()
 
@@ -120,7 +130,31 @@ def readImage(name):
         else:
             return data
 
-    return imageio.imread(name)
+    try:
+        im = Image.open(name)
+        return np.asarray(im,dtype=np.float32)
+    except Exception as inst:
+        print(inst)
+        dir = Path(os.path.dirname(name))
+        s = os.path.basename(name)
+        s = s.replace('-flow_01.flo', '')
+        s = s.replace('-img_0.png', '')
+        s = s.replace('-img_1.png', '')
+        im0 = s + '-img_0.png'
+        im1 = s + '-img_1.png'
+        flo = s + '-flow_01.flo'
+        print('\nBroken File, deleting...')
+        if os.path.exists(dir/im0): 
+            # os.remove(dir/im0)
+            print(dir/im0)
+        if os.path.exists(dir/im1): 
+            # os.remove(dir/im1)
+            print(dir/im1)
+        if os.path.exists(dir/flo): 
+            # os.remove(dir/flo)
+            print(dir/flo)
+        print('\n')
+    return None
 
 def writeImage(name, data):
     if name.endswith('.pfm') or name.endswith('.PFM'):
