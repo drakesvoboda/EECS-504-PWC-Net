@@ -111,22 +111,22 @@ class Checkpoint(TrainingCallback):
         self.interval = interval
         self.reset = reset
 
-    def load(self):
+    def load(self, model, optimizer, schedule):
         if not os.path.exists(self.ckpt_file): return
 
         print("\n--- LOADING CHECKPOINT ---")
 
         checkpoint = torch.load(self.ckpt_file, map_location=None)
 
-        if 'model' in checkpoint: self.model.load_state_dict(checkpoint['model'])
-        if 'optimizer' in checkpoint: self.optimizer.load_state_dict(checkpoint['optimizer'])
-        if 'schedule' in checkpoint: self.schedule.load_state_dict(checkpoint['schedule'])
+        if 'model' in checkpoint: model.load_state_dict(checkpoint['model'])
+        if 'optimizer' in checkpoint: optimizer.load_state_dict(checkpoint['optimizer'])
+        if 'schedule' in checkpoint: schedule.load_state_dict(checkpoint['schedule'])
 
-    def _checkpoint(self):
+    def _checkpoint(self, model, optimizer, schedule):
         state = {
-            'model': self.model.state_dict(),
-            'optimizer' : self.optimizer.state_dict(),
-            'schedule': self.schedule.state_dict(),
+            'model': model.state_dict(),
+            'optimizer' : optimizer.state_dict(),
+            'schedule': schedule.state_dict(),
         }
 
         torch.save(state, self.ckpt_file)
@@ -138,12 +138,7 @@ class Checkpoint(TrainingCallback):
         a.join()
 
     def on_train_begin(self, model, optimizer, schedule, cb_dict):
-        self.model = model
-        self.optimizer = optimizer
-        self.schedule = schedule
-
-        if not self.reset: self.load()
-
+        if not self.reset: self.load(model, optimizer, schedule)
         self.start_time = time.time()      
 
     def on_batch_end(self, model, optimizer, schedule, cb_dict, loss):
@@ -152,7 +147,7 @@ class Checkpoint(TrainingCallback):
 
         if elapsed > self.interval:
             self.start_time = end
-            self.checkpoint()
+            self.checkpoint(model, optimizer, schedule)
             print("\n--- CHECKPOINT ---")
 
 class TrainingSchedule():
@@ -235,7 +230,9 @@ def train(model, optimizer, objective, schedule):
                 optimizer.step()
                 optimizer.zero_grad()
 
-                schedule.on_batch_end(model, optimizer, loss.item())
+                schedule.on_batch_end(model, optimizer, loss.detach().item())
+
+                del loss, im1, im2, target
 
             schedule.on_epoch_end(model, optimizer)
 
