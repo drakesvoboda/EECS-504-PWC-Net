@@ -131,9 +131,9 @@ class Checkpoint(TrainingCallback):
 
         torch.save(state, self.ckpt_file)
 
-    def checkpoint(self):
+    def checkpoint(self, model, optimizer, schedule):
         # Save model in a separate thread (otherwise interrupting training during a save corrupts the checkpoint file)
-        a = Thread(target=self._checkpoint) 
+        a = Thread(target=self._checkpoint, args=(model, optimizer, schedule)) 
         a.start()
         a.join()
 
