@@ -83,17 +83,22 @@ class Visualize(TrainingCallback):
         with EvalModel(model): 
             preds = predict_flow(model, im1, im2)
 
-        for im1, pred, target in zip(self.im1, preds, self.target):
+        for im1, im2, pred, target in zip(self.im1, self.im2, preds, self.target):
             im1 = self.denorm_fn(im1)
             im1 = im1.numpy().transpose((1, 2, 0))
+
+            im2 = self.denorm_fn(im2)
+            im2 = im2.numpy().transpose((1, 2, 0))
+
             pred = flow2rgb(pred.detach().cpu().numpy())
             target = flow2rgb(target.numpy())
 
-            fig, ax = plt.subplots(1, 3, figsize=(24, 24))
+            fig, ax = plt.subplots(1, 4, figsize=(12, 12))
 
             ax[0].imshow(im1)
-            ax[1].imshow(target)
-            ax[2].imshow(pred)
+            ax[1].imshow(im2)
+            ax[2].imshow(target)
+            ax[3].imshow(pred)
 
             plt.show()
 
