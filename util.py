@@ -39,6 +39,22 @@ def read_png_flow(flow_file):
     flow[invalid_idx, 1] = 0
     return flow
 
+
+def write_png_flow(F_uv, filename):
+    m,n,k = F_uv.shape
+    I = np.zeros((m, n, 3))
+    if k == 2:
+        F_val = np.ones((m, n))
+    elif k ==3:
+        F_val = F_uv[:,:,2]
+    
+    I[:,:,0] = np.maximum(np.minimum(F_uv[:,:,0]*64+2**15, 2**16-1), 0)
+    I[:,:,1] = np.maximum(np.minimum(F_uv[:,:,1]*64+2**15, 2**16-1), 0)
+    I[:,:,2] = np.maximum(np.minimum(F_val, 1), 0)
+
+    cv2.imwrite(filename, cv2.cvtColor(I.astype(dtype='uint16'), cv2.COLOR_BGR2RGB))
+    return 0
+
 def resample_flow(flow, size):
     """
     flow: flow map to be resampled
