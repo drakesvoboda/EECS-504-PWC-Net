@@ -1,5 +1,8 @@
 import cv2
-import flow_vis
+import scipy.ndimage
+from scipy import signal
+import numpy as np
+
 ## Opencv Dense Flow - Gunner Farneback
 def dense_GF(frame1, frame2, params=None, blur=True):
     if params is None:
@@ -21,9 +24,8 @@ def dense_GF(frame1, frame2, params=None, blur=True):
         next_img = cv2.GaussianBlur(next_img,(5,5),0)
 
     flow = cv2.calcOpticalFlowFarneback(prev_img,next_img, None, **params)
-    flow_color = flow_vis.flow_to_color(flow, convert_to_bgr=False)
 
-    return flow, flow_color
+    return flow
 
 # Dense Lucas-Kanade
 def warp_flow_fast(im2, u, v):
@@ -205,5 +207,5 @@ def dense_LK(frame1, frame2):
 
     u, v, warpI2 = coarse2fine_lk(img1_norm,img2_norm,nlevels,winsize,medfiltsize,nIterations)
     flow = np.array([u, v]).transpose(1,2,0)
-    flow_color = flow_vis.flow_to_color(flow)
-    return flow, flow_color
+
+    return flow
