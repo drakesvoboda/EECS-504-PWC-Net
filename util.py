@@ -106,3 +106,26 @@ def predict_flow(model, im1, im2):
     flow1 = 20 * F.interpolate(flow2, size=(im1.shape[2], im1.shape[3]), mode='bilinear', align_corners=False)
 
     return flow1
+
+
+def plot_flow(img1, img2, flow_color):
+    titles = ['Prev Image', 'Next Image', 'Est Flow']
+    fig, ax = plt.subplots(1, 3, figsize=(15, 20))
+    for i, a in enumerate(ax):
+      a.set_axis_off()
+      a.set_title(titles[i])
+    ax[0].imshow(cv2.cvtColor(img1,cv2.COLOR_BGR2RGB))
+    ax[1].imshow(cv2.cvtColor(img2,cv2.COLOR_BGR2RGB))
+    ax[2].imshow(flow_color)
+
+def plot_flow_w_GT(img1, img2, flow_color, flow_target, img1_name):
+    titles = ['Prev Image', 'Next Image', 'Est Flow', 'GT Flow']
+    fig, ax = plt.subplots(1, 4, figsize=(30, 20))
+    fig.suptitle(img1_name, y=0.62)
+    for i, a in enumerate(ax):
+      a.set_axis_off()
+      a.set_title(titles[i])
+    ax[0].imshow(cv2.cvtColor(img1,cv2.COLOR_BGR2RGB))
+    ax[1].imshow(cv2.cvtColor(img2,cv2.COLOR_BGR2RGB))
+    ax[2].imshow(flow_color)
+    ax[3].imshow(flow_target)
