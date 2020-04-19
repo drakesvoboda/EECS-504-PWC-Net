@@ -20,7 +20,7 @@ def flow_error(F_gt, F_est, tau=None):
         tau = np.asarray([3.0, 0.05])
 
     E, F_val = flow_error_map(F_gt, F_est)
-    F_mag = np.sqrt(F_gt[:,:,0]*F_gt[:,:,0]+F_gt[:,:,1]*F_gt[:,:,1])
+    F_mag = np.sqrt(F_gt[:,:,0]*F_gt[:,:,0]+F_gt[:,:,1]*F_gt[:,:,1])+1e-16
     n_total = np.sum(F_val!=0)
     n_1 = F_val!=0
     n_2 = E > tau[0]
